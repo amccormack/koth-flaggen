@@ -1,2 +1,3 @@
 TODO:
- - Add puppet / chef deploy script
+ - Use ansible to build an ami
+ - Use cloudformation to deploy the ami

@@ -37,7 +37,16 @@ func ComputeHmac256(message string, secret string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
+func Stall() {
+	for i := 0; i < 10; i++ {
+		time.Sleep(time.Second)
+		fmt.Printf(".")
+	}
+	fmt.Printf("\n")
+}
+
 func main() {
+	Stall()
 	flagtype := loadSeed()
 
 	timeString := time.Now().Format("2006-01-02 15:04")

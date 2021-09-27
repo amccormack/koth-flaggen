@@ -10,6 +10,7 @@ import (
 	"sync"
 	"net/http"
 	"encoding/json"
+	"regexp"
 )
 
 var seed string = "defaultsecret"
@@ -38,7 +39,7 @@ func (fc *FlagCheck) SetFlags(t time.Time) {
 	fc.flags[f2] = true
 	fc.flags[f3] = true
 
-	fmt.Printf("SF %v: %v %v %v\n", t.Format("03:04:05"), f1, f2, f3)
+	// fmt.Printf("SF %v: %v %v %v\n", t.Format("03:04:05"), f1, f2, f3)
 }
 
 func (fc *FlagCheck) CheckFlag(guess string) bool {
@@ -57,6 +58,7 @@ func (fc *FlagCheck) RecordFlag(guess string, user string) bool {
 		userMap := make(map[string]bool)
 		fc.points[user] = userMap
 	}
+	fmt.Printf("User %s scored with %s...\n", user, guess[:10])
 	fc.points[user][guess] = true
 	return true
 }
@@ -125,10 +127,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+	re := regexp.MustCompile("[^a-zA-Z0-9-_]")
 
 	q := r.URL.Query()
 	flag := q.Get("flag")
-	user := q.Get("user")
+	user_orig := q.Get("user")
+	user := re.ReplaceAllString(user_orig, "")
+
 	if user == "" || len(flag) != 64 {
 		message := fmt.Sprintf("Invalid user and flag\nuser: '%s' flag: '%s'\n", user, flag)
 		message = message + fmt.Sprintf("Submit flag and user like /?flag=...&user=...")
@@ -164,14 +169,5 @@ func main() {
 
     http.HandleFunc("/", handler)
     http.ListenAndServe(":8080", nil)
-
-	// Tickers can be stopped like timers. Once a ticker
-	// is stopped it won't receive any more values on its
-	// channel.
-	time.Sleep(60 * time.Second)
-	ticker.Stop()
-	done <- true
-	fmt.Println("Ticker stopped")
-
 
 }
